@@ -46,9 +46,9 @@ export default function App() {
     }
   };
 
-  const edit = async (task, title) => {
+  const edit = async (data) => {
     try {
-      const updated = await updateTask(task._id, { title: title });
+      const updated = await updateTask(data.id, { title: data.title });
       setTasks((prev) =>
         prev.map((t) => (t._id === updated._id ? updated : t))
       );

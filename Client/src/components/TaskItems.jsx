@@ -3,10 +3,10 @@ import { useState } from "react";
 export default function TaskItem({ task, onToggle, onEdit, onDelete }) {
   const isDone = task.status === "completed";
   const [title, setTitle] = useState(task.title);
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
+  const handleTitleChange = (data) => {
+    setTitle(data.title);
     if (onEdit) {
-      onEdit({ ...task, title: e.target.value });
+      onEdit(data);
     }
   };
   return (
@@ -18,7 +18,7 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }) {
               isDone ? "line-through text-gray-400" : "text-gray-800"
             }`}
           >
-            <input onChange={handleTitleChange} type="text" value={title} className="border-0 focus:border-0border-none focus:outline-none focus:ring-0" />
+            <input onChange={(e) => handleTitleChange({ id: task._id, title: e.target.value })} type="text" value={title} className="border-0 focus:border-0border-none focus:outline-none focus:ring-0" />
           </p>
           <p className="text-xs text-gray-500">
             {new Date(task.createdAt).toLocaleString()}
