@@ -1,35 +1,86 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// client/src/App.jsx
+import { useEffect, useState } from 'react';
+import TaskForm from './components/TaskForm';
+import TaskList from './components/TaskList';
+import { fetchTasks, createTask, deleteTask, updateTask } from './lib/api.js';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchTasks();
+      setTasks(data);
+    } catch (e) {
+      setError(e.message || 'Failed to load tasks');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const add = async (title) => {
+    try {
+      const newTask = await createTask(title);
+      setTasks((prev) => [newTask, ...prev]);
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  const toggle = async (task) => {
+    const nextStatus = task.status === 'completed' ? 'pending' : 'completed';
+    try {
+      const updated = await updateTask(task._id, { status: nextStatus });
+      setTasks((prev) =>
+        prev.map((t) => (t._id === updated._id ? updated : t))
+      );
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  const remove = async (id) => {
+    try {
+      await deleteTask(id);
+      setTasks((prev) => prev.filter((t) => t._id !== id));
+    } catch (e) {
+      setError(e.message);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+    <div className="min-h-dvh flex items-center bg-gray-100 justify-center p-4">
+      <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-6 border border-gray/4">
+        <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
+          Task Manager
+        </h1>
+        <p className="text-center text-gray-500 mb-6">
+          manage your tasks
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
 
-export default App
+        <TaskForm onAdd={add} />
+
+        <div className="my-4 h-px bg-gray-200" />
+
+        {error && (
+          <div className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <p className="text-center text-gray-500">Loading ...</p>
+        ) : (
+          <TaskList tasks={tasks} onToggle={toggle} onDelete={remove} />
+        )}
+      </div>
+    </div>
+  );
+}
