@@ -8,6 +8,7 @@ export default function App() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('manage your tasks');
 
   const load = async () => {
     try {
@@ -29,6 +30,7 @@ export default function App() {
     try {
       const newTask = await createTask(title);
       setTasks((prev) => [newTask, ...prev]);
+      setMessage('New task successfully added');
     } catch (e) {
       setError(e.message);
     }
@@ -41,6 +43,7 @@ export default function App() {
       setTasks((prev) =>
         prev.map((t) => (t._id === updated._id ? updated : t))
       );
+      setMessage('Task status updated to ' + nextStatus);
     } catch (e) {
       setError(e.message);
     }
@@ -52,6 +55,7 @@ export default function App() {
       setTasks((prev) =>
         prev.map((t) => (t._id === updated._id ? updated : t))
       );
+      setMessage('Task title changed to ' + data.title);
     } catch (e) {
       setError(e.message);
     }
@@ -61,6 +65,7 @@ export default function App() {
     try {
       await deleteTask(id);
       setTasks((prev) => prev.filter((t) => t._id !== id));
+      setMessage('Task deleted successfully');
     } catch (e) {
       setError(e.message);
     }
@@ -72,8 +77,8 @@ export default function App() {
         <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
           Task Manager
         </h1>
-        <p className="text-center text-gray-500 mb-6">
-          manage your tasks
+        <p className="text-center text-gray-500 mb-6 bg-pink-50 border border-pink-200 text-pink-700 py-2 px-4 rounded-xl">
+          {message}
         </p>
 
         <TaskForm onAdd={add} />
