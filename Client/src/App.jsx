@@ -46,6 +46,17 @@ export default function App() {
     }
   };
 
+  const edit = async (task, title) => {
+    try {
+      const updated = await updateTask(task._id, { title: title });
+      setTasks((prev) =>
+        prev.map((t) => (t._id === updated._id ? updated : t))
+      );
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
   const remove = async (id) => {
     try {
       await deleteTask(id);
@@ -78,7 +89,7 @@ export default function App() {
         {loading ? (
           <p className="text-center text-gray-500">Loading ...</p>
         ) : (
-          <TaskList tasks={tasks} onToggle={toggle} onDelete={remove} />
+          <TaskList tasks={tasks} onToggle={toggle} onEdit={edit} onDelete={remove} />
         )}
       </div>
     </div>
