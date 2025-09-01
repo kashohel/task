@@ -1,8 +1,10 @@
-import express from 'express';
-const route = express.Router();
+import { Router } from 'express';
+import taskContr from '../controller/taskController'
+const route = Router();
 
-route.get('/', (req, res) => {
+route.get('/', taskContr.getAll);
+route.post('/create', taskContr.create);
+route.post('/update/:id', taskContr.update);
+route.post('/delete/:id', taskContr.remove);
 
-});
-
-module.exports = route;
+export default route;
